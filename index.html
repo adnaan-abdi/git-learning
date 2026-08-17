@@ -1,11 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A considered portfolio dashboard for independent creative work.">
+  <title>Atelier — Portfolio dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#17201f; --paper:#f7f5f0; --moss:#82967f; --moss-deep:#426052; --clay:#d4745d; --mist:#dce5dd; --line:#d8d8d1; --quiet:#6d7470; --white:#fffefa; --radius:18px; --shadow:0 14px 34px rgba(23,32,31,.08); }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font-family:"DM Sans",sans-serif; font-size:16px; line-height:1.5; }
+    button { font:inherit; } a { color:inherit; text-decoration:none; }
+    button:focus-visible, a:focus-visible { outline:3px solid var(--clay); outline-offset:3px; }
+    .skip-link { position:fixed; left:16px; top:-60px; z-index:10; padding:10px 16px; background:var(--ink); color:var(--white); border-radius:8px; } .skip-link:focus { top:16px; }
+    .app { min-height:100dvh; display:grid; grid-template-columns:254px minmax(0,1fr); }
+    .sidebar { min-height:100dvh; padding:31px 22px 24px; display:flex; flex-direction:column; border-right:1px solid var(--line); position:sticky; top:0; height:100dvh; }
+    .brand { display:flex; align-items:center; gap:11px; margin:0 7px 50px; font:500 14px "DM Mono",monospace; letter-spacing:.04em; }
+    .brand-mark { width:31px; height:31px; display:grid; place-items:center; border-radius:50%; background:var(--ink); color:var(--paper); font:600 17px Fraunces,serif; }
+    .nav { display:grid; gap:6px; }
+    .nav button { border:0; width:100%; min-height:46px; padding:0 13px; display:flex; align-items:center; gap:12px; color:var(--quiet); border-radius:9px; background:transparent; cursor:pointer; text-align:left; transition:background .2s, color .2s, transform .2s; }
+    .nav button:hover { color:var(--ink); background:#ecece6; } .nav button:active { transform:scale(.98); }
+    .nav button.active { background:var(--ink); color:var(--paper); }
+    .nav svg, .utility svg { width:18px; height:18px; stroke-width:1.7; fill:none; stroke:currentColor; }
+    .sidebar-footer { margin-top:auto; padding:15px 7px 0; border-top:1px solid var(--line); }
+    .identity { display:flex; align-items:center; gap:10px; } .avatar { width:34px; height:34px; border-radius:50%; background:linear-gradient(145deg,#e5aa8d 0 45%,#31473f 46%); } .identity b { display:block; font-size:13px; } .identity span { display:block; color:var(--quiet); font:11px "DM Mono",monospace; }
+    main { max-width:1440px; width:100%; margin:0 auto; padding:35px clamp(22px,4vw,64px) 56px; overflow:hidden; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:52px; }
+    .eyebrow { margin:0; color:var(--quiet); font:12px "DM Mono",monospace; letter-spacing:.07em; text-transform:uppercase; } .date { font:12px "DM Mono",monospace; color:var(--quiet); }
+    .utility { display:flex; gap:8px; } .utility button { min-width:42px; min-height:42px; display:grid; place-items:center; border:1px solid var(--line); border-radius:50%; color:var(--ink); background:var(--paper); cursor:pointer; transition:background .2s, color .2s, transform .2s; } .utility button:hover { background:var(--ink); color:var(--paper); } .utility button:active { transform:scale(.94); }
+    .intro { display:flex; justify-content:space-between; align-items:end; gap:28px; margin-bottom:28px; }
+    h1 { max-width:660px; margin:5px 0 0; font:500 clamp(43px,5vw,76px)/.97 Fraunces,serif; letter-spacing:-.055em; } .intro-copy { max-width:255px; margin:0 0 5px; color:var(--quiet); font-size:14px; }
+    .feature { min-height:420px; display:grid; grid-template-columns:1.15fr .85fr; border-radius:var(--radius); overflow:hidden; background:var(--mist); box-shadow:var(--shadow); }
+    .feature-art { position:relative; min-height:380px; overflow:hidden; background:#b9c9b9; isolation:isolate; }
+    .feature-art::before { content:""; position:absolute; width:72%; aspect-ratio:1/1.17; left:14%; top:10%; border-radius:48% 48% 42% 42%; background:linear-gradient(154deg,#e6e1cb 0 29%,#6e957d 30% 53%,#c76f58 54% 70%,#203a33 71%); transform:rotate(9deg); box-shadow:inset -15px 3px 36px rgba(0,0,0,.11); }
+    .feature-art::after { content:""; position:absolute; width:38%; aspect-ratio:1; border-radius:50%; background:#f4b78f; opacity:.9; left:0; bottom:-13%; mix-blend-mode:multiply; }
+    .art-label { position:absolute; z-index:1; bottom:24px; left:25px; font:11px "DM Mono",monospace; letter-spacing:.05em; color:var(--ink); }
+    .feature-info { padding:clamp(27px,4vw,53px); display:flex; flex-direction:column; align-items:flex-start; }
+    .project-kind { margin:0 0 19px; color:var(--moss-deep); font:12px "DM Mono",monospace; text-transform:uppercase; letter-spacing:.08em; }
+    h2 { margin:0; font:500 clamp(31px,3.6vw,51px)/1.02 Fraunces,serif; letter-spacing:-.045em; } .feature-info > p:not(.project-kind) { margin:18px 0 28px; max-width:360px; color:#53605a; }
+    .tags { display:flex; flex-wrap:wrap; gap:7px; } .tag { padding:5px 9px; border:1px solid rgba(23,32,31,.2); border-radius:100px; font:11px "DM Mono",monospace; }
+    .project-link { margin-top:auto; display:inline-flex; align-items:center; gap:9px; min-height:46px; padding:0 14px 0 17px; border:0; border-radius:9px; background:var(--ink); color:var(--paper); cursor:pointer; transition:transform .2s, background .2s; } .project-link:hover { background:var(--moss-deep); } .project-link:active { transform:scale(.97); } .project-link svg { width:16px; height:16px; }
+    .section-head { display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin:61px 0 21px; } .section-head h2 { font:500 25px Fraunces,serif; letter-spacing:-.03em; } .text-link { border:0; padding:0; background:transparent; color:var(--moss-deep); font:12px "DM Mono",monospace; cursor:pointer; text-decoration:underline; text-underline-offset:4px; }
+    .lower { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr); gap:clamp(25px,4vw,58px); }
+    .projects { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .work { min-width:0; cursor:pointer; } .work-image { position:relative; aspect-ratio:1/.88; overflow:hidden; border-radius:13px; background:#e6d4c7; transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; } .work:hover .work-image { transform:translateY(-5px); box-shadow:0 12px 20px rgba(23,32,31,.13); }
+    .work-image::after { content:""; position:absolute; inset:0; background:linear-gradient(135deg,transparent 48%,rgba(255,255,255,.25)); } .work-image.one { background:linear-gradient(135deg,#eac6af 0 42%,#c6b19d 42% 58%,#203e36 58%); } .work-image.two { background:linear-gradient(130deg,#c7d0bb 0 37%,#e7e5d4 37% 63%,#ac715e 63%); } .work-image.three { background:linear-gradient(47deg,#354b45 0 40%,#ddaa8e 40% 58%,#d8d6c8 58%); }
+    .work-image::before { content:""; position:absolute; z-index:1; border:1px solid rgba(255,255,255,.65); border-radius:50%; width:54%; aspect-ratio:1; left:23%; top:23%; } .work h3 { margin:12px 0 2px; font:500 17px Fraunces,serif; letter-spacing:-.02em; } .work p { margin:0; color:var(--quiet); font:11px "DM Mono",monospace; }
+    .pulse { border-left:1px solid var(--line); padding-left:clamp(25px,4vw,50px); } .pulse h2 { margin:61px 0 21px; font:500 25px Fraunces,serif; letter-spacing:-.03em; }
+    .stat { padding:19px 0; border-top:1px solid var(--line); display:flex; align-items:baseline; justify-content:space-between; gap:12px; } .stat:last-of-type { border-bottom:1px solid var(--line); } .stat strong { font:500 29px Fraunces,serif; letter-spacing:-.04em; } .stat span { color:var(--quiet); font-size:13px; text-align:right; } .stat span b { color:var(--moss-deep); font:500 11px "DM Mono",monospace; }
+    .note { margin-top:24px; padding:17px; border-radius:11px; background:#ecece6; } .note p { margin:0 0 12px; font:500 14px/1.45 Fraunces,serif; } .note span { color:var(--quiet); font:11px "DM Mono",monospace; }
+    .toast { position:fixed; z-index:20; right:24px; bottom:24px; max-width:290px; padding:13px 17px; border-radius:10px; background:var(--ink); color:var(--paper); font-size:14px; box-shadow:var(--shadow); transform:translateY(130%); opacity:0; transition:transform .25s,opacity .25s; } .toast.visible { transform:translateY(0); opacity:1; }
+    @media (max-width:900px) { .app { grid-template-columns:1fr; } .sidebar { height:auto; min-height:0; position:static; padding:18px 22px; flex-direction:row; align-items:center; border-right:0; border-bottom:1px solid var(--line); } .brand { margin:0 auto 0 0; } .nav { display:flex; gap:2px; } .nav button { width:auto; padding:0 11px; min-height:42px; } .nav button span { display:none; } .sidebar-footer { display:none; } main { padding-top:28px; } .pulse { border-left:0; padding-left:0; } .lower { grid-template-columns:1fr; } .pulse h2 { margin-top:13px; } }
+    @media (max-width:640px) { .sidebar { padding:13px 16px; } .brand { font-size:13px; } .nav button { min-width:40px; padding:0 10px; } main { padding:24px 16px 42px; } .topbar { margin-bottom:41px; } .date { display:none; } .intro { display:block; margin-bottom:23px; } h1 { font-size:47px; } .intro-copy { margin-top:17px; } .feature { grid-template-columns:1fr; } .feature-art { min-height:265px; } .feature-info { min-height:338px; padding:27px; } .section-head { margin-top:47px; } .projects { gap:11px; } .work h3 { font-size:15px; } .work p { font-size:10px; } .utility button:first-child { display:none; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+  </style>
 </head>
 <body>
-    
+  <a class="skip-link" href="#main">Skip to dashboard</a>
+  <div class="app">
+    <aside class="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="#overview" aria-label="Atelier dashboard home"><span class="brand-mark">A</span>ATELIER</a>
+      <nav class="nav" aria-label="Portfolio sections">
+        <button class="active" data-page="Overview" aria-current="page"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></svg><span>Overview</span></button>
+        <button data-page="Selected work"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5Z"/><path d="m4 15 4-4 3 3 4-5 5 6"/></svg><span>Work</span></button>
+        <button data-page="Archive"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16v13H4zM3 4h18v3H3zM10 11h4"/></svg><span>Archive</span></button>
+      </nav>
+      <div class="sidebar-footer"><div class="identity"><span class="avatar" aria-hidden="true"></span><div><b>Alex Morgan</b><span>Independent designer</span></div></div></div>
+    </aside>
+    <main id="main" tabindex="-1">
+      <header class="topbar"><p class="eyebrow" id="page-label">Portfolio overview</p><div class="utility"><button id="search" aria-label="Search portfolio"><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m16 16 4 4"/></svg></button><button id="add-work" aria-label="Add a new project"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button></div><time class="date" datetime="2026-08-17">Monday, 17 August</time></header>
+      <section id="overview" aria-labelledby="welcome"><div class="intro"><div><p class="eyebrow">A small practice, in motion</p><h1 id="welcome">Make a body of work,<br>not just a feed.</h1></div><p class="intro-copy">A calm home for the projects being made, refined, and remembered.</p></div>
+        <article class="feature"><div class="feature-art" role="img" aria-label="Abstract artwork in green, cream, clay, and dark ink"><span class="art-label">AT / 24 — quiet signals</span></div><div class="feature-info"><p class="project-kind">In progress · 72%</p><h2>Quiet signals<br>for a busy city</h2><p>An identity and wayfinding study for public spaces that invite people to slow down.</p><div class="tags"><span class="tag">Identity</span><span class="tag">Wayfinding</span><span class="tag">2024</span></div><button class="project-link" data-toast="Opening Quiet signals…">Open project <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div></article>
+      </section>
+      <div class="lower"><section aria-labelledby="recent-work"><div class="section-head"><h2 id="recent-work">Recent work</h2><button class="text-link" data-toast="All projects are now in view.">View all work</button></div><div class="projects"><article class="work" tabindex="0" role="button" data-toast="Opening Field notes…"><div class="work-image one" aria-hidden="true"></div><h3>Field notes</h3><p>Editorial system · 2024</p></article><article class="work" tabindex="0" role="button" data-toast="Opening Groundwork…"><div class="work-image two" aria-hidden="true"></div><h3>Groundwork</h3><p>Brand world · 2024</p></article><article class="work" tabindex="0" role="button" data-toast="Opening Warm room…"><div class="work-image three" aria-hidden="true"></div><h3>Warm room</h3><p>Digital place · 2023</p></article></div></section>
+        <aside class="pulse" aria-labelledby="momentum"><h2 id="momentum">This season</h2><div class="stat"><strong>07</strong><span>projects<br><b>shipped</b></span></div><div class="stat"><strong>14</strong><span>kind collaborators<br><b>this year</b></span></div><div class="stat"><strong>03</strong><span>ideas waiting<br><b>for their season</b></span></div><div class="note"><p>“The work is never separate from the way it makes someone feel.”</p><span>STUDIO NOTE · AUGUST</span></div></aside>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="main.js"></script>
 </body>
 </html>
